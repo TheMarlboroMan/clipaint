@@ -8,17 +8,19 @@ int main(int /*argc*/, char ** /*argv*/) {
 
 	//TODO: Some of these will be the canvas, some would be
 	//the status with x, y, background, foreground and... symbol?
-	int w=30, h=20;
-	video::window display(w, h);
+	int canvas_w=30, 
+		canvas_h=20;
+	int drawer_w=10;
+	video::window display(canvas_w+drawer_w, canvas_h);
 	//puerile attempt to scroll down a lot of lines... Maybe not enough.
-	for(int i=0; i<h; i++) {std::cout<<std::endl;}
+	for(int i=0; i<canvas_h; i++) {std::cout<<std::endl;}
 
 	input::input in;
 	auto now=std::chrono::system_clock::now();
 	auto then=now;
 	double draw_ms_elapsed{0.0};
 
-	app::driver driver(display, in);
+	app::driver driver(display, in, drawer_w);
 	display.clear();
 
 	while(true) {

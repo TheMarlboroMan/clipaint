@@ -89,6 +89,7 @@ void window::draw(
 
 			case app::nothing: _out<<" "; break;
 			case app::solid: _out<<"█"; break;
+			case app::v: _out<<"v"; break;
 			default: _out<<"?"; break;
 		}
 

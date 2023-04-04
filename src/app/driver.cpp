@@ -7,13 +7,15 @@ using namespace app;
 
 driver::driver(
 	video::window& _window,
-	const input::input& _input
+	const input::input& _input,
+	int _drawer_w
 ):
-	canvas{_window.get_w(), _window.get_h()},
+	canvas{_window.get_w()-_drawer_w, _window.get_h()},
 	window{_window},
-	input{_input}
+	input{_input},
+	drawer_width(_drawer_w)
 {
-	sync_full_display();
+	sync_display();
 }
 
 void driver::step() {
@@ -67,13 +69,41 @@ void driver::step() {
 
 void driver::sync_display() {
 
-	sync_full_display();
-	canvas.set(10, 10, colors::red, colors::red, 'a');
-	canvas.set(12, 12, colors::blue, colors::blue, 'a');
-	//TODO:
+	sync_canvas_display();
+	sync_drawer_display();
 }
 
-void driver::sync_full_display() {
+void driver::sync_drawer_display() {
+
+	int x=canvas.get_width();
+	for(int y=0; y < canvas.get_height(); y++) {
+
+		window.set(x, y, colors::white, colors::white, types::solid);
+	}
+
+	//TODO: These should be like... spinners???
+	//TODO: Black tick with black color is stupid.
+	//TODO: Create colors::contrast_with method.
+	//Foreground colors...
+	const int fg_color_y=2;
+	for(int x=colors::color_min+1; x < colors::color_max; x++) {
+
+		int type=x==fgcolor ? types::v : types::nothing;
+		window.set(canvas.get_width()+1+x, fg_color_y, x, colors::black, type);
+	}
+
+	//Background colors...
+	const int bg_color_y=4;
+	for(int x=colors::color_min+1; x < colors::color_max; x++) {
+
+		int type=x==bgcolor ? types::v : types::nothing;
+		window.set(canvas.get_width()+1+x, bg_color_y, x, colors::black, type);
+	}
+
+	//TODO: Current shape.
+}
+
+void driver::sync_canvas_display() {
 
 	uint8_t bg=colors::black;
 	uint8_t fg=colors::white;

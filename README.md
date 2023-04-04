@@ -14,3 +14,4 @@ There are a couple of dependencies so far for this:
 
 - The cursor should blink.
 - Use some keys to select background, foreground and shape.
+- Use contrasting color for the tick mark!!!

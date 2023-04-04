@@ -13,13 +13,14 @@ class driver {
 
 	public:
 	
-	driver(video::window&, const input::input&);
+	driver(video::window&, const input::input&, int);
 	void					step();
 	void					sync_display();
 
 	private:
 
-	void					sync_full_display();
+	void					sync_canvas_display();
+	void					sync_drawer_display();
 
 	app::canvas				canvas;
 	video::window&			window;
@@ -29,5 +30,6 @@ class driver {
 	int						bgcolor{app::colors::white},
 							fgcolor{app::colors::white},
 							shape{app::types::nothing};
+	int						drawer_width;
 };
 }

@@ -4,7 +4,9 @@ namespace app {
 
 enum types {
 
-	nothing=0,
+	types_min=0,
+	nothing,
+	v,
 	solid,
 	types_max
 };

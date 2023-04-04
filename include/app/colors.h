@@ -4,7 +4,8 @@ namespace app {
 
 enum colors {
 
-	black=0,
+	color_min=0,
+	black,
 	red,
 	green,
 	yellow,
