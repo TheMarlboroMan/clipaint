@@ -20,6 +20,29 @@ driver::driver(
 
 void driver::step() {
 
+	//TODO: ooops... no modifiers.
+	if(input.is_tab()) {
+
+		if(input.is_up()) {
+
+			cycle_color(bgcolor, -1);
+		}
+		else if(input.is_down()) {
+
+			cycle_color(bgcolor, 1);
+		}
+		else if(input.is_left()) {
+		
+			cycle_color(fgcolor, -1);
+		}
+		else if(input.is_right()) {
+		
+			cycle_color(fgcolor, 1);
+		}
+
+		return;
+	}
+
 	//cursor movement...
 	int x=0, y=0;
 
@@ -75,10 +98,10 @@ void driver::sync_display() {
 
 void driver::sync_drawer_display() {
 
-	int x=canvas.get_width();
+	const int separator_x=canvas.get_width();
 	for(int y=0; y < canvas.get_height(); y++) {
 
-		window.set(x, y, colors::white, colors::white, types::solid);
+		window.set(separator_x, y, colors::white, colors::white, types::solid);
 	}
 
 	//TODO: These should be like... spinners???
@@ -88,19 +111,43 @@ void driver::sync_drawer_display() {
 	const int fg_color_y=2;
 	for(int x=colors::color_min+1; x < colors::color_max; x++) {
 
-		int type=x==fgcolor ? types::v : types::nothing;
-		window.set(canvas.get_width()+1+x, fg_color_y, x, colors::black, type);
+		bool current=x==fgcolor;
+		int type=current ? types::v : types::nothing;
+		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
+		window.set(canvas.get_width()+1+x, fg_color_y, x, tick_color, type);
 	}
 
 	//Background colors...
 	const int bg_color_y=4;
 	for(int x=colors::color_min+1; x < colors::color_max; x++) {
-
-		int type=x==bgcolor ? types::v : types::nothing;
-		window.set(canvas.get_width()+1+x, bg_color_y, x, colors::black, type);
+	
+		bool current=x==bgcolor;
+		int type=current ? types::v : types::nothing;
+		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
+		window.set(canvas.get_width()+1+x, bg_color_y, x, tick_color, type);
 	}
 
 	//TODO: Current shape.
+}
+
+void driver::cycle_color(
+	int& _color,
+	int _direction
+) {
+
+std::terminate();
+	_color+=_direction;
+	if(_color==colors::color_min) {
+
+		_color=colors::color_max-1;
+		return;
+	}
+
+	if(_color==colors::color_max) {
+
+		_color=colors::color_min+1;
+		return;
+	}
 }
 
 void driver::sync_canvas_display() {

@@ -16,4 +16,5 @@ enum colors {
 	color_max
 };
 
+int get_contrasting_color(int);
 }

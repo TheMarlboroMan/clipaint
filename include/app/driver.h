@@ -21,6 +21,7 @@ class driver {
 
 	void					sync_canvas_display();
 	void					sync_drawer_display();
+	void					cycle_color(int&, int);
 
 	app::canvas				canvas;
 	video::window&			window;

@@ -18,6 +18,11 @@ void input::input::loop() {
 
 			control_flags|=cflags::escape;
 		}
+
+		if(input_data.control==input_data.controls::tab) {
+
+			control_flags|=cflags::tab;
+		}
 	}
 
 	if(input_data.type==input_data.types::chr) {

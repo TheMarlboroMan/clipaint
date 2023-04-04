@@ -14,6 +14,7 @@ class input {
 	bool					is_left() const {return control_flags & cflags::left;}
 	bool					is_right() const {return control_flags & cflags::right;}
 	bool					is_space() const {return control_flags & cflags::space;}
+	bool					is_tab() const {return control_flags & cflags::tab;}
 
 	private:
 	
@@ -23,7 +24,8 @@ class input {
 		down=4,
 		left=8,
 		right=16,
-		space=32
+		space=32,
+		tab=64
 	};
 
 	tools::terminal_in		in;
