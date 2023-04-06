@@ -8,7 +8,7 @@ class input {
 	public:
 
 	void					loop();
-	bool					is_exit() const {return control_flags & cflags::escape;}
+	bool					is_escape() const {return control_flags & cflags::escape;}
 	bool					is_up() const {return control_flags & cflags::up;}
 	bool					is_down() const {return control_flags & cflags::down;}
 	bool					is_left() const {return control_flags & cflags::left;}

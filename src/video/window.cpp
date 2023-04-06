@@ -21,7 +21,7 @@ void window::set(
 	int _y,
 	uint8_t _bg,
 	uint8_t _fg,
-	uint8_t _type
+	char _type
 ) {
 
 	std::size_t index=_x + (width * _y);
@@ -35,7 +35,7 @@ void window::set(
 
 	cells[index].bg=_bg;
 	cells[index].fg=_fg;
-	cells[index].type=_type;
+	cells[index].contents=_type;
 }
 
 void window::draw(
@@ -85,13 +85,7 @@ void window::draw(
 			}
 		}
 
-		switch(c.type) {
-
-			case app::nothing: _out<<" "; break;
-			case app::solid: _out<<"█"; break;
-			case app::v: _out<<"v"; break;
-			default: _out<<"?"; break;
-		}
+		_out<<c.contents;
 
 		if(x==width) {
 

@@ -10,8 +10,9 @@ int main(int /*argc*/, char ** /*argv*/) {
 	//the status with x, y, background, foreground and... symbol?
 	int canvas_w=30, 
 		canvas_h=20;
-	int drawer_w=10;
-	video::window display(canvas_w+drawer_w, canvas_h);
+	int drawer_w=10,
+		statusbar_h=1;
+	video::window display(canvas_w+drawer_w, canvas_h+statusbar_h);
 	//puerile attempt to scroll down a lot of lines... Maybe not enough.
 	for(int i=0; i<canvas_h; i++) {std::cout<<std::endl;}
 
@@ -20,13 +21,13 @@ int main(int /*argc*/, char ** /*argv*/) {
 	auto then=now;
 	double draw_ms_elapsed{0.0};
 
-	app::driver driver(display, in, drawer_w);
+	app::driver driver(display, in, drawer_w, statusbar_h);
 	display.clear();
 
 	while(true) {
 
 		in.loop();
-		if(in.is_exit()) {
+		if(driver.is_exit()) {
 
 			break;
 		}

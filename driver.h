@@ -15,7 +15,7 @@ driver::driver(
 	window{_window},
 	input{_input},
 	drawer_width(_drawer_w),
-	status_bar_height(_statusbar_h)
+	statusbar_h(_statusbar_h)
 {
 	sync_display();
 }
@@ -31,11 +31,6 @@ void driver::step() {
 			step_color_selection();
 		break;
 	}
-}
-
-bool driver::is_exit() const {
-
-	return mode==modes::move_and_draw && input.is_escape();
 }
 
 void driver::step_move_and_draw() {
@@ -70,7 +65,7 @@ void driver::step_move_and_draw() {
 	if(x) {
 
 		int attempted_x=cursor.x+x;
-		if(attempted_x >= 0 && attempted_x < canvas.get_width()) {
+		if(attempted_x > 0 && attempted_x < canvas.get_width()) {
 
 			cursor.x=attempted_x;
 		}
@@ -79,7 +74,7 @@ void driver::step_move_and_draw() {
 	if(y) {
 
 		int attempted_y=cursor.y+y;
-		if(attempted_y >= 0 && attempted_y < canvas.get_height()) {
+		if(attempted_y > 0 && attempted_y < canvas.get_height()) {
 
 			cursor.y=attempted_y;
 		}
@@ -93,13 +88,6 @@ void driver::step_move_and_draw() {
 }
 
 void driver::step_color_selection() {
-
-	if(input.is_escape()) {
-
-		mode=modes::move_and_draw;
-		return;
-	}
-
 	if(input.is_up()) {
 
 		cycle_color(bgcolor, -1);
@@ -122,7 +110,6 @@ void driver::sync_display() {
 
 	sync_canvas_display();
 	sync_drawer_display();
-	sync_statusbar_display();
 }
 
 void driver::sync_drawer_display() {
@@ -130,7 +117,7 @@ void driver::sync_drawer_display() {
 	const int separator_x=canvas.get_width();
 	for(int y=0; y < canvas.get_height(); y++) {
 
-		window.set(separator_x, y, colors::white, colors::white, ' ');
+		window.set(separator_x, y, colors::white, colors::white, types::solid);
 	}
 
 	//TODO: These should be like... spinners???
@@ -141,7 +128,7 @@ void driver::sync_drawer_display() {
 	for(int x=colors::color_min+1; x < colors::color_max; x++) {
 
 		bool current=x==fgcolor;
-		char type=current ? 'v' : ' ';
+		int type=current ? types::v : types::nothing;
 		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
 		window.set(canvas.get_width()+1+x, fg_color_y, x, tick_color, type);
 	}
@@ -151,7 +138,7 @@ void driver::sync_drawer_display() {
 	for(int x=colors::color_min+1; x < colors::color_max; x++) {
 	
 		bool current=x==bgcolor;
-		char type=current ? 'v' : ' ';
+		int type=current ? types::v : types::nothing;
 		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
 		window.set(canvas.get_width()+1+x, bg_color_y, x, tick_color, type);
 	}
@@ -159,25 +146,12 @@ void driver::sync_drawer_display() {
 	//TODO: Current shape.
 }
 
-void driver::sync_statusbar_display() {
-
-	//TODO: draw the status bar and shizz.
-	int statusbar_bg=colors::white;
-	int statusbar_fg=colors::blue;
-	int statusbar_y=window.get_h()-status_bar_height;
-
-	for(int x=0; x<window.get_w(); x++) {
-
-		//TODO: argh. Just want to draw some text damn it!
-		window.set(+x, statusbar_y, statusbar_bg, statusbar_fg, '=');
-	}
-}
-
 void driver::cycle_color(
 	int& _color,
 	int _direction
 ) {
 
+std::terminate();
 	_color+=_direction;
 	if(_color==colors::color_min) {
 
@@ -196,7 +170,7 @@ void driver::sync_canvas_display() {
 
 	uint8_t bg=colors::black;
 	uint8_t fg=colors::white;
-	char type=' ';
+	uint8_t type=types::solid;
 
 	for(int y=0; y < canvas.get_height(); y++) {
 
@@ -238,7 +212,6 @@ void driver::sync_canvas_display() {
 
 	//of course, the cursor now...
 	uint8_t cursor_color=colors::white;
-	char cursor_contents=' ';
 	//TODO: Should show the shape under the cursor, if any.
-	window.set(cursor.x, cursor.y, cursor_color, cursor_color, cursor_contents);
+	window.set(cursor.x, cursor.y, cursor_color, cursor_color, types::nothing);
 }

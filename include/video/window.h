@@ -10,7 +10,8 @@ namespace video {
 struct cell {
 
 	public:
-	uint8_t				bg{app::black}, fg{app::black}, type{app::nothing};
+	uint8_t				bg{app::black}, fg{app::black};
+	char				contents{' '};
 };
 
 class window {
@@ -21,7 +22,7 @@ class window {
 	int					get_w() const {return width;}
 	int					get_h() const {return height;}
 	//!sets the given cell.
-	void				set(int, int, uint8_t, uint8_t, uint8_t);
+	void				set(int, int, uint8_t, uint8_t, char);
 	//!causes the whole buffer to be printed
 	void				draw(std::ostream&);
 	//!resets the contents of the whole buffer to nothing.
