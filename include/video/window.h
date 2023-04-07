@@ -1,9 +1,9 @@
 #pragma once
 #include "app/colors.h"
-#include "app/shapes.h"
 #include <ostream>
 #include <vector>
 #include <cstdint>
+#include <string>
 
 namespace video {
 
@@ -23,6 +23,7 @@ class window {
 	int					get_h() const {return height;}
 	//!sets the given cell.
 	void				set(int, int, uint8_t, uint8_t, char);
+	void				set_text(int, int, uint8_t, uint8_t, const std::string&);
 	//!causes the whole buffer to be printed
 	void				draw(std::ostream&);
 	//!resets the contents of the whole buffer to nothing.

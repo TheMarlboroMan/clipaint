@@ -37,10 +37,11 @@ int main(int /*argc*/, char ** /*argv*/) {
 		std::chrono::duration<double> diff=then-now;
 		now=then;
 
-		driver.step();
+		double delta=diff.count();
+		driver.step(delta);
 
 		//draw
-		draw_ms_elapsed+=diff.count();
+		draw_ms_elapsed+=delta;
 		if(draw_ms_elapsed >= 0.1) {
 
 			//TODO: You sure about this???

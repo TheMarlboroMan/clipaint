@@ -1,7 +1,7 @@
 #include "app/driver.h"
 #include "app/colors.h"
-#include "app/shapes.h"
 #include <stdexcept>
+#include <sstream>
 
 using namespace app;
 
@@ -11,24 +11,34 @@ driver::driver(
 	int _drawer_w,
 	int _statusbar_h
 ):
-	canvas{_window.get_w()-_drawer_w, _window.get_h()},
+	canvas{_window.get_w()-_drawer_w, _window.get_h()-_statusbar_h},
 	window{_window},
 	input{_input},
 	drawer_width(_drawer_w),
 	status_bar_height(_statusbar_h)
 {
 	sync_display();
+	build_message("welcome!");
 }
 
-void driver::step() {
+void driver::build_message(
+	const std::string& _in
+) {
+
+	message=_in.substr(0, window.get_w());
+}
+
+void driver::step(
+	double _delta
+) {
 
 	switch(mode) {
 
 		case modes::move_and_draw:
-			step_move_and_draw();
+			step_move_and_draw(_delta);
 		break;
 		case modes::color_selection:
-			step_color_selection();
+			step_color_selection(_delta);
 		break;
 	}
 }
@@ -38,13 +48,22 @@ bool driver::is_exit() const {
 	return mode==modes::move_and_draw && input.is_escape();
 }
 
-void driver::step_move_and_draw() {
+void driver::step_move_and_draw(
+	double _delta
+) {
 
 	if(input.is_tab()) {
 
+		build_message("color selection");
 		mode=modes::color_selection;
-		step_color_selection();
+		step_color_selection(_delta);
 		return;
+	}
+
+	cursor_blink_timer+=_delta;
+	if(cursor_blink_timer > cursor_blink_cycle_len) {
+
+		cursor_blink_timer=0.0;
 	}
 
 	//cursor movement...
@@ -92,10 +111,13 @@ void driver::step_move_and_draw() {
 	}
 }
 
-void driver::step_color_selection() {
+void driver::step_color_selection(
+	double _delta
+) {
 
 	if(input.is_escape()) {
 
+		build_message("normal");
 		mode=modes::move_and_draw;
 		return;
 	}
@@ -123,6 +145,21 @@ void driver::sync_display() {
 	sync_canvas_display();
 	sync_drawer_display();
 	sync_statusbar_display();
+	sync_cursor_position();
+}
+
+void driver::sync_cursor_position() {
+
+	const int	pos_y=6,
+				pos_x=canvas.get_width()+1;
+	const int	bg=colors::black,
+				fg=colors::white;
+
+
+	std::stringstream ss;
+	//TODO: Take care of this dirty padding, maybe left pad with zeroes
+	ss<<cursor.x<<","<<cursor.y<<"  ";
+	window.set_text(pos_x, pos_y, bg, fg, ss.str());
 }
 
 void driver::sync_drawer_display() {
@@ -133,9 +170,6 @@ void driver::sync_drawer_display() {
 		window.set(separator_x, y, colors::white, colors::white, ' ');
 	}
 
-	//TODO: These should be like... spinners???
-	//TODO: Black tick with black color is stupid.
-	//TODO: Create colors::contrast_with method.
 	//Foreground colors...
 	const int fg_color_y=2;
 	for(int x=colors::color_min+1; x < colors::color_max; x++) {
@@ -161,16 +195,18 @@ void driver::sync_drawer_display() {
 
 void driver::sync_statusbar_display() {
 
-	//TODO: draw the status bar and shizz.
 	int statusbar_bg=colors::white;
 	int statusbar_fg=colors::blue;
 	int statusbar_y=window.get_h()-status_bar_height;
 
 	for(int x=0; x<window.get_w(); x++) {
 
-		//TODO: argh. Just want to draw some text damn it!
-		window.set(+x, statusbar_y, statusbar_bg, statusbar_fg, '=');
+		window.set(+x, statusbar_y, statusbar_bg, statusbar_fg, ' ');
 	}
+
+	//TODO: of course, this would only get updated when changes to the bar 
+	//go off!!
+	window.set_text(1, statusbar_y, statusbar_bg, statusbar_fg, message);
 }
 
 void driver::cycle_color(
@@ -237,8 +273,13 @@ void driver::sync_canvas_display() {
 	}
 
 	//of course, the cursor now...
-	uint8_t cursor_color=colors::white;
-	char cursor_contents=' ';
-	//TODO: Should show the shape under the cursor, if any.
-	window.set(cursor.x, cursor.y, cursor_color, cursor_color, cursor_contents);
+	//TODO: When the time comes, mark this chunk as "update".
+	if(cursor_blink_timer > (cursor_blink_cycle_len / 2)) {
+
+		uint8_t cursor_color=colors::white;
+		//TODO: Add bg color too!!
+
+		auto cursor_contents=canvas.get(cursor.x, cursor.y).contents;
+		window.set(cursor.x, cursor.y, cursor_color, cursor_color, cursor_contents);
+	}
 }

@@ -38,6 +38,22 @@ void window::set(
 	cells[index].contents=_type;
 }
 
+void window::set_text(
+	int _x, 
+	int _y,
+	uint8_t _bg,
+	uint8_t _fg,
+	const std::string& _text
+) {
+	//TODO: This should be easy... except for the out of bounds that we should control here!!
+	std::size_t i=0;
+	while(i < _text.length() && i < width) {
+
+		set(_x+i, _y, _bg, _fg, _text.at(i));	
+		i++;
+	}
+}
+
 void window::draw(
 	std::ostream& _out
 ) {
