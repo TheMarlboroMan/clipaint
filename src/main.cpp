@@ -1,16 +1,45 @@
-#include <iostream>
 #include "video/window.h"
 #include "input/input.h"
 #include "app/driver.h"
+#include <tools/arg_manager.h>
+#include <tools/terminal_out.h>
 #include <thread>
+#include <iostream>
 
-int main(int /*argc*/, char ** /*argv*/) {
+struct user_arg {
 
-	int canvas_w=30, 
-		canvas_h=20;
+	bool show_help{false},
+		show_size{false};
+	int canvas_w{30}, 
+		canvas_h{20};
+};
+
+void	show_help();
+void	show_size();
+user_arg parse_args(int, char **);
+
+int main(
+	int argc, 
+	char ** argv
+) {
+
+	user_arg ua=parse_args(argc, argv);
+	if(ua.show_help) {
+
+		show_help();
+		return 0;
+	}
+
+	if(ua.show_size) {
+
+		show_size();
+		return 0;
+	}
+
 	int drawer_w=10,
 		statusbar_h=1;
-	video::window display(canvas_w+drawer_w, canvas_h+statusbar_h);
+
+	video::window display(ua.canvas_w+drawer_w, ua.canvas_h+statusbar_h);
 
 	//TODO: The terminal should scroll down...
 	input::input in;
@@ -49,4 +78,59 @@ int main(int /*argc*/, char ** /*argv*/) {
 	}
 
 	return 0;
+}
+
+user_arg parse_args(
+	int _argc, 
+	char ** _argv
+) {
+
+	tools::arg_manager argman(_argc, _argv);
+	user_arg result;
+
+	if(argman.exists("--help")) {
+
+		result.show_help=true;
+		return result;
+	}
+
+	if(argman.exists("--size")) {
+
+		result.show_size=true;
+		return result;
+	}
+
+	auto checkarg=[&](const char * _argname) -> bool {
+
+		return argman.exists(_argname) && argman.arg_follows(_argname);
+	};
+
+	if(checkarg("--width")) {
+
+		result.canvas_w=std::stoi(argman.get_following("--width"));
+	}
+	
+	if(checkarg("--height")) {
+
+		result.canvas_h=std::stoi(argman.get_following("--height"));
+	}
+
+	return result;
+}
+
+void show_help() {
+
+	std::cout<<
+	"--help: shows this help\n"
+	"--size: outputs the current terminal size\n"
+	"--width n: sets the width of the canvas\n"
+	"--height n: sets the height of the canvas\n";
+
+	std::flush(std::cout);
+}
+
+void show_size() {
+
+	auto ts=tools::get_termsize();
+	std::cout<<"width:"<<ts.w<<" height:"<<ts.h<<std::endl;
 }

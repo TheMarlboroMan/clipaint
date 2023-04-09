@@ -28,9 +28,11 @@ endif()
 #libraries... added manually. Sorry, that's life.
 add_library(terminal STATIC IMPORTED)
 add_library(utf8tools STATIC IMPORTED)
+add_library(tools STATIC IMPORTED)
 
 set_target_properties(terminal PROPERTIES IMPORTED_LOCATION /usr/local/lib/libterminal-tools.a)
 set_target_properties(utf8tools PROPERTIES	IMPORTED_LOCATION /usr/local/lib/libutf8tools.a)
+set_target_properties(tools PROPERTIES	IMPORTED_LOCATION /usr/local/lib/libtools.a)
 
 set(SRCDIR src)
 set(SOURCE
@@ -42,4 +44,4 @@ set(SOURCE
 )
 
 add_executable(clipaint src/main.cpp ${SOURCE})
-target_link_libraries(clipaint terminal utf8tools)
+target_link_libraries(clipaint terminal utf8tools tools)
