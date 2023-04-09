@@ -13,3 +13,6 @@ There are a couple of dependencies so far for this:
 ## TODO:
 
 - The window could be updated in rect chunks.
+- Shape selector (32 to 126).
+- Save / load.
+- Max screen size could be different from canvas, scroll.

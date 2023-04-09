@@ -6,16 +6,13 @@
 
 int main(int /*argc*/, char ** /*argv*/) {
 
-	//TODO: Some of these will be the canvas, some would be
-	//the status with x, y, background, foreground and... symbol?
 	int canvas_w=30, 
 		canvas_h=20;
 	int drawer_w=10,
 		statusbar_h=1;
 	video::window display(canvas_w+drawer_w, canvas_h+statusbar_h);
-	//puerile attempt to scroll down a lot of lines... Maybe not enough.
-	for(int i=0; i<canvas_h; i++) {std::cout<<std::endl;}
 
+	//TODO: The terminal should scroll down...
 	input::input in;
 	auto now=std::chrono::system_clock::now();
 	auto then=now;

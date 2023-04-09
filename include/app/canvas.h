@@ -15,7 +15,6 @@ struct cell {
 	public:
 
 	uint8_t				fg{colors::black}, bg{colors::black};
-	//TODO: yeah, no, the window says a type...
 	char				contents{' '};
 };
 

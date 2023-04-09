@@ -45,8 +45,10 @@ void window::set_text(
 	uint8_t _fg,
 	const std::string& _text
 ) {
-	//TODO: This should be easy... except for the out of bounds that we should control here!!
+
 	std::size_t i=0;
+	
+	//do make sure we are not extending beyond the window bounds...
 	while(i < _text.length() && i < width) {
 
 		set(_x+i, _y, _bg, _fg, _text.at(i));	

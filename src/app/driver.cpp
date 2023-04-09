@@ -2,6 +2,7 @@
 #include "app/colors.h"
 #include <stdexcept>
 #include <sstream>
+#include <iomanip>
 
 using namespace app;
 
@@ -151,14 +152,15 @@ void driver::sync_display() {
 void driver::sync_cursor_position() {
 
 	const int	pos_y=6,
-				pos_x=canvas.get_width()+1;
+				pos_x=canvas.get_width()+2;
 	const int	bg=colors::black,
 				fg=colors::white;
 
 
 	std::stringstream ss;
-	//TODO: Take care of this dirty padding, maybe left pad with zeroes
-	ss<<cursor.x<<","<<cursor.y<<"  ";
+	ss<<std::setfill('0')<<std::setw(3)<<cursor.x<<","
+		<<std::setw(3)<<cursor.y;
+
 	window.set_text(pos_x, pos_y, bg, fg, ss.str());
 }
 
@@ -230,45 +232,12 @@ void driver::cycle_color(
 
 void driver::sync_canvas_display() {
 
-	uint8_t bg=colors::black;
-	uint8_t fg=colors::white;
-	char type=' ';
-
 	for(int y=0; y < canvas.get_height(); y++) {
 
 		for(int x=0; x < canvas.get_width(); x++) {
 
 			const auto cell=canvas.get(x, y);
-
-			//This is mostly stupid because values are the same, but well...
-			switch(cell.bg) {
-
-				case colors::black: bg=colors::black; break;
-				case colors::red: bg=colors::red; break;
-				case colors::green: bg=colors::green; break;
-				case colors::yellow: bg=colors::yellow; break;
-				case colors::blue: bg=colors::blue; break;
-				case colors::magenta: bg=colors::magenta; break;
-				case colors::cyan: bg=colors::cyan; break;
-				case colors::white: bg=colors::white; break;
-				default: throw std::runtime_error("invalid cell bg");
-			}
-
-			switch(cell.fg) {
-
-				case colors::black: fg=colors::black; break;
-				case colors::red: fg=colors::red; break;
-				case colors::green: fg=colors::green; break;
-				case colors::yellow: fg=colors::yellow; break;
-				case colors::blue: fg=colors::blue; break;
-				case colors::magenta: fg=colors::magenta; break;
-				case colors::cyan: fg=colors::cyan; break;
-				case colors::white: fg=colors::white; break;
-				default: throw std::runtime_error("invalid cell fg");
-			}
-
-			//TODO: sync also the type, which right now is a char... Maybe it should be a char allright,.
-			window.set(x, y, bg, fg, type);
+			window.set(x, y, cell.bg, cell.fg, cell.contents);
 		}
 	}
 
