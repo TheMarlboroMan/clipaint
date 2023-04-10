@@ -26,14 +26,25 @@ class window {
 	void				set_text(int, int, uint8_t, uint8_t, const std::string&);
 	//!causes the whole buffer to be printed
 	void				draw(std::ostream&);
+	//!causes a refresh of the modified parts of the buffer.
+	void				refresh(std::ostream&);
 	//!resets the contents of the whole buffer to nothing.
 	void				clear();
 	void				reset(std::ostream&);
 
 	private:
 
+	int					color_to_fg_termcolor(int) const;
+	int					color_to_bg_termcolor(int) const;
+
+	struct mod_cell{
+		int x, y;
+	};
+
 	int					width{0}, height{0};
 	std::vector<cell>	cells;
+	std::vector<mod_cell>	modified_cells;
+	bool refresh_all{true};
 };
 
 }

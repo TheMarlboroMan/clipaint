@@ -14,6 +14,8 @@ window::window(
 
 		throw std::runtime_error("bad viewport size: width and height must be larger than zero");
 	}
+
+	modified_cells.reserve(width*height);
 }
 
 void window::set(
@@ -33,9 +35,17 @@ void window::set(
 		throw std::runtime_error(errmsg.str());
 	}
 
+	auto& cell=cells[index];
+
+	if(cell.bg==_bg && cell.fg==_fg && cell.contents==_type) {
+
+		return;
+	}
+
 	cells[index].bg=_bg;
 	cells[index].fg=_fg;
 	cells[index].contents=_type;
+	modified_cells.push_back({_x, _y});
 }
 
 void window::set_text(
@@ -56,6 +66,34 @@ void window::set_text(
 	}
 }
 
+void window::refresh(
+	std::ostream& _out
+) {
+
+	if(refresh_all) {
+
+		draw(_out);
+	}
+
+	if(!modified_cells.size()) {
+
+		return;
+	}
+
+	for(const auto& mod : modified_cells) {
+
+		std::size_t index=mod.x + (width * mod.y);
+		const auto& cell=cells[index];
+		_out<<tools::s::pos(mod.x+1, mod.y+1)
+			<<tools::s::background_color(color_to_bg_termcolor(cell.bg))
+			<<tools::s::text_color(color_to_fg_termcolor(cell.fg))
+			<<cell.contents;
+	}
+
+	modified_cells.clear();	
+	std::flush(_out);
+}
+
 void window::draw(
 	std::ostream& _out
 ) {
@@ -74,43 +112,65 @@ void window::draw(
 		if(bg!=c.bg) {
 
 			bg=c.bg;
-			switch(bg) {
-
-				case app::black: _out<<tools::s::background_color(tools::bg_black); break;
-				case app::red:	_out<<tools::s::background_color(tools::bg_red); break;
-				case app::green:	_out<<tools::s::background_color(tools::bg_green); break;
-				case app::yellow:_out<<tools::s::background_color(tools::bg_yellow); break;
-				case app::blue:	_out<<tools::s::background_color(tools::bg_blue); break;
-				case app::magenta: _out<<tools::s::background_color(tools::bg_magenta); break;
-				case app::cyan:	_out<<tools::s::background_color(tools::bg_cyan); break;
-				case app::white: _out<<tools::s::background_color(tools::bg_white); break;
-			}
+			_out<<tools::s::background_color(color_to_bg_termcolor(bg));
 		}
 
 		if(fg!=c.fg) {
 
 			fg=c.fg;
-			switch(fg) {
-
-				case app::black: _out<<tools::s::text_color(tools::txt_black); break;
-				case app::red:	_out<<tools::s::text_color(tools::txt_red); break;
-				case app::green:	_out<<tools::s::text_color(tools::txt_green); break;
-				case app::yellow:_out<<tools::s::text_color(tools::txt_yellow); break;
-				case app::blue:	_out<<tools::s::text_color(tools::txt_blue); break;
-				case app::magenta: _out<<tools::s::text_color(tools::txt_magenta); break;
-				case app::cyan:	_out<<tools::s::text_color(tools::txt_cyan); break;
-				case app::white: _out<<tools::s::text_color(tools::txt_white); break;
-			}
+			_out<<tools::s::text_color(color_to_fg_termcolor(fg));
 		}
 
 		_out<<c.contents;
 
 		if(x==width) {
 
-			_out<<std::endl;
+			_out<<"\n";
 			x=0;
 		}
 	}
+
+	std::flush(_out);
+	modified_cells.clear();
+	refresh_all=false;
+}
+
+int window::color_to_fg_termcolor(
+	int _color
+) const {
+
+	switch(_color) {
+
+		case app::black:return tools::txt_black;
+		case app::red:return tools::txt_red;
+		case app::green:return tools::txt_green;
+		case app::yellow:return tools::txt_yellow;
+		case app::blue:return tools::txt_blue;
+		case app::magenta:return tools::txt_magenta;
+		case app::cyan:return tools::txt_cyan;
+		case app::white:return tools::txt_white;
+	}
+
+	return tools::txt_red;
+}
+
+int window::color_to_bg_termcolor(
+	int _color
+) const {
+
+	switch(_color) {
+
+		case app::black:return tools::bg_black;
+		case app::red:return tools::bg_red;
+		case app::green:return tools::bg_green;
+		case app::yellow:return tools::bg_yellow;
+		case app::blue:return tools::bg_blue;
+		case app::magenta:return tools::bg_magenta;
+		case app::cyan:return tools::bg_cyan;
+		case app::white:return tools::bg_white;
+	}
+
+	return tools::bg_red;
 }
 
 void window::reset(
@@ -126,4 +186,6 @@ void window::clear() {
 
 		curcell=cell{};
 	}
+
+	refresh_all=true;
 }

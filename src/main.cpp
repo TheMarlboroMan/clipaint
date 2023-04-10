@@ -73,7 +73,7 @@ int main(
 			//TODO: You sure about this???
 			driver.sync_display();
 			draw_ms_elapsed=0.0;
-			display.draw(std::cout);
+			display.refresh(std::cout);
 		}
 	}
 
