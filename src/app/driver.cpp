@@ -9,17 +9,21 @@ using namespace app;
 driver::driver(
 	video::window& _window,
 	const input::input& _input,
+	int _canvas_w,
+	int _canvas_h,
 	int _drawer_w,
 	int _statusbar_h
 ):
-	canvas{_window.get_w()-_drawer_w, _window.get_h()-_statusbar_h},
+	canvas{_canvas_w, _canvas_h},
 	window{_window},
 	input{_input},
 	drawer_width(_drawer_w),
-	status_bar_height(_statusbar_h)
+	statusbar_height(_statusbar_h)
 {
-	sync_display();
+	drawer_separator_x=std::min(window.get_w()-drawer_width, canvas.get_width());
+	statusbar_y=std::min(window.get_h()-statusbar_height, canvas.get_height()+1);
 	build_message("welcome!");
+	sync_display();
 }
 
 void driver::build_message(
@@ -113,7 +117,7 @@ void driver::step_move_and_draw(
 }
 
 void driver::step_color_selection(
-	double _delta
+	double /*_delta*/
 ) {
 
 	if(input.is_escape()) {
@@ -152,10 +156,9 @@ void driver::sync_display() {
 void driver::sync_cursor_position() {
 
 	const int	pos_y=6,
-				pos_x=canvas.get_width()+2;
+				pos_x=drawer_separator_x+2;
 	const int	bg=colors::black,
 				fg=colors::white;
-
 
 	std::stringstream ss;
 	ss<<std::setfill('0')<<std::setw(3)<<cursor.x<<","
@@ -166,10 +169,9 @@ void driver::sync_cursor_position() {
 
 void driver::sync_drawer_display() {
 
-	const int separator_x=canvas.get_width();
-	for(int y=0; y < canvas.get_height(); y++) {
+	for(int y=0; y < statusbar_y; y++) {
 
-		window.set(separator_x, y, colors::white, colors::white, ' ');
+		window.set(drawer_separator_x, y, colors::white, colors::blue, '|');
 	}
 
 	//Foreground colors...
@@ -179,7 +181,7 @@ void driver::sync_drawer_display() {
 		bool current=x==fgcolor;
 		char type=current ? 'v' : ' ';
 		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
-		window.set(canvas.get_width()+1+x, fg_color_y, x, tick_color, type);
+		window.set(drawer_separator_x+x, fg_color_y, x, tick_color, type);
 	}
 
 	//Background colors...
@@ -189,7 +191,7 @@ void driver::sync_drawer_display() {
 		bool current=x==bgcolor;
 		char type=current ? 'v' : ' ';
 		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
-		window.set(canvas.get_width()+1+x, bg_color_y, x, tick_color, type);
+		window.set(drawer_separator_x+x, bg_color_y, x, tick_color, type);
 	}
 
 	//TODO: Current shape.
@@ -197,17 +199,15 @@ void driver::sync_drawer_display() {
 
 void driver::sync_statusbar_display() {
 
-	int statusbar_bg=colors::white;
-	int statusbar_fg=colors::blue;
-	int statusbar_y=window.get_h()-status_bar_height;
+	const int statusbar_bg=colors::white;
+	const int statusbar_fg=colors::blue;
+	const int ww=window.get_w();
 
-	for(int x=0; x<window.get_w(); x++) {
+	for(int x=0; x<ww-1; x++) {
 
-		window.set(+x, statusbar_y, statusbar_bg, statusbar_fg, ' ');
+		window.set(+x, statusbar_y, statusbar_bg, statusbar_fg, '=');
 	}
 
-	//TODO: of course, this would only get updated when changes to the bar 
-	//go off!!
 	window.set_text(1, statusbar_y, statusbar_bg, statusbar_fg, message);
 }
 
@@ -232,17 +232,19 @@ void driver::cycle_color(
 
 void driver::sync_canvas_display() {
 
+	const int canvas_viewport_h=window.get_h()-statusbar_height;
+
+	//TODO: We lack a measure for this... and this is incorrect!
 	for(int y=0; y < canvas.get_height(); y++) {
 
-		for(int x=0; x < canvas.get_width(); x++) {
+		for(int x=0; x < drawer_separator_x; x++) {
 
-			const auto cell=canvas.get(x, y);
+			const auto cell=canvas.get(x+canvas_viewport_x, y+canvas_viewport_y);
 			window.set(x, y, cell.bg, cell.fg, cell.contents);
 		}
 	}
 
 	//of course, the cursor now...
-	//TODO: When the time comes, mark this chunk as "update".
 	if(cursor_blink_timer > (cursor_blink_cycle_len / 2)) {
 
 		uint8_t cursor_color=colors::white;

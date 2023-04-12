@@ -39,7 +39,8 @@ int main(
 	int drawer_w=10,
 		statusbar_h=1;
 
-	video::window display(ua.canvas_w+drawer_w, ua.canvas_h+statusbar_h);
+	auto ts=tools::get_termsize();
+	video::window display(ts.w, ts.h);
 
 	//TODO: The terminal should scroll down...
 	input::input in;
@@ -47,7 +48,7 @@ int main(
 	auto then=now;
 	double draw_ms_elapsed{0.0};
 
-	app::driver driver(display, in, drawer_w, statusbar_h);
+	app::driver driver(display, in, ua.canvas_w, ua.canvas_h, drawer_w, statusbar_h);
 	display.clear();
 
 	while(true) {

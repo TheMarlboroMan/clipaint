@@ -73,6 +73,7 @@ void window::refresh(
 	if(refresh_all) {
 
 		draw(_out);
+		return;
 	}
 
 	if(!modified_cells.size()) {
@@ -104,7 +105,7 @@ void window::draw(
 		<<tools::s::background_color(bg)
 		<<tools::s::text_color(fg);
 
-	std::size_t x=0;
+	std::size_t x=0, y=0;
 	for(const auto c : cells) {
 
 		++x;
@@ -123,9 +124,10 @@ void window::draw(
 
 		_out<<c.contents;
 
-		if(x==width) {
+		if(x==width && y!=height-1) {
 
 			_out<<"\n";
+			++y;
 			x=0;
 		}
 	}

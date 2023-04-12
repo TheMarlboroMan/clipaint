@@ -13,7 +13,7 @@ class driver {
 
 	public:
 	
-	driver(video::window&, const input::input&, int, int);
+	driver(video::window&, const input::input&, int, int, int, int);
 	void					step(double);
 	void					sync_display();
 	bool					is_exit() const;
@@ -38,9 +38,13 @@ class driver {
 	modes					mode{modes::move_and_draw};
 	int						bgcolor{app::colors::white},
 							fgcolor{app::colors::white};
+	int						canvas_viewport_x{0},
+							canvas_viewport_y{0};
 	char					shape{' '};
 	int						drawer_width,
-							status_bar_height;
+							statusbar_height,
+							drawer_separator_x{0},
+							statusbar_y{0};
 	std::string				message;
 	double					cursor_blink_timer{0.0};
 
