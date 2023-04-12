@@ -38,12 +38,12 @@ class driver {
 	modes					mode{modes::move_and_draw};
 	int						bgcolor{app::colors::white},
 							fgcolor{app::colors::white};
-	int						canvas_viewport_x{0},
-							canvas_viewport_y{0};
+	struct rect {
+		int x{0}, y{0}, w{0}, h{0};
+	}						canvas_viewport;
 	char					shape{' '};
 	int						drawer_width,
 							statusbar_height,
-							drawer_separator_x{0},
 							statusbar_y{0};
 	std::string				message;
 	double					cursor_blink_timer{0.0};

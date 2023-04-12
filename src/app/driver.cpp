@@ -20,8 +20,8 @@ driver::driver(
 	drawer_width(_drawer_w),
 	statusbar_height(_statusbar_h)
 {
-	drawer_separator_x=std::min(window.get_w()-drawer_width, canvas.get_width());
-	statusbar_y=std::min(window.get_h()-statusbar_height, canvas.get_height()+1);
+	canvas_viewport.w=std::min(window.get_w()-drawer_width, canvas.get_width());
+	statusbar_y=std::min(window.get_h()-statusbar_height, canvas.get_height());
 	build_message("welcome!");
 	sync_display();
 }
@@ -97,6 +97,14 @@ void driver::step_move_and_draw(
 		if(attempted_x >= 0 && attempted_x < canvas.get_width()) {
 
 			cursor.x=attempted_x;
+			if(x > 0 && cursor.x > canvas_viewport.w+canvas_viewport.x) {
+
+				++canvas_viewport.x;
+			}
+			else if(x < 0 && cursor.x < canvas_viewport.x) {
+
+				--canvas_viewport.x;
+			}
 		}
 	}
 
@@ -156,7 +164,7 @@ void driver::sync_display() {
 void driver::sync_cursor_position() {
 
 	const int	pos_y=6,
-				pos_x=drawer_separator_x+2;
+				pos_x=canvas_viewport.w+2;
 	const int	bg=colors::black,
 				fg=colors::white;
 
@@ -165,13 +173,27 @@ void driver::sync_cursor_position() {
 		<<std::setw(3)<<cursor.y;
 
 	window.set_text(pos_x, pos_y, bg, fg, ss.str());
+
+	ss.str("");
+	ss<<std::setfill('0')
+		<<std::setw(3)<<canvas_viewport.x<<","
+		<<std::setw(3)<<canvas_viewport.y;
+
+	window.set_text(pos_x, pos_y+2, bg, fg, ss.str());
+
+	ss.str("");
+	ss<<std::setfill('0')
+		<<std::setw(3)<<canvas.get_width()<<","
+		<<std::setw(3)<<canvas.get_height();
+
+	window.set_text(pos_x, pos_y+4, bg, fg, ss.str());
 }
 
 void driver::sync_drawer_display() {
 
 	for(int y=0; y < statusbar_y; y++) {
 
-		window.set(drawer_separator_x, y, colors::white, colors::blue, '|');
+		window.set(canvas_viewport.w, y, colors::white, colors::blue, '|');
 	}
 
 	//Foreground colors...
@@ -181,7 +203,7 @@ void driver::sync_drawer_display() {
 		bool current=x==fgcolor;
 		char type=current ? 'v' : ' ';
 		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
-		window.set(drawer_separator_x+x, fg_color_y, x, tick_color, type);
+		window.set(canvas_viewport.w+x, fg_color_y, x, tick_color, type);
 	}
 
 	//Background colors...
@@ -191,7 +213,7 @@ void driver::sync_drawer_display() {
 		bool current=x==bgcolor;
 		char type=current ? 'v' : ' ';
 		int tick_color=current ? app::get_contrasting_color(x) : colors::black;
-		window.set(drawer_separator_x+x, bg_color_y, x, tick_color, type);
+		window.set(canvas_viewport.w+x, bg_color_y, x, tick_color, type);
 	}
 
 	//TODO: Current shape.
@@ -231,15 +253,12 @@ void driver::cycle_color(
 }
 
 void driver::sync_canvas_display() {
+	
+	for(int y=0; y < statusbar_y; y++) {
 
-	const int canvas_viewport_h=window.get_h()-statusbar_height;
+		for(int x=0; x < canvas_viewport.w; x++) {
 
-	//TODO: We lack a measure for this... and this is incorrect!
-	for(int y=0; y < canvas.get_height(); y++) {
-
-		for(int x=0; x < drawer_separator_x; x++) {
-
-			const auto cell=canvas.get(x+canvas_viewport_x, y+canvas_viewport_y);
+			const auto cell=canvas.get(x+canvas_viewport.x, y+canvas_viewport.y);
 			window.set(x, y, cell.bg, cell.fg, cell.contents);
 		}
 	}
