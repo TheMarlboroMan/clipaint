@@ -97,7 +97,7 @@ void driver::step_move_and_draw(
 		if(attempted_x >= 0 && attempted_x < canvas.get_width()) {
 
 			cursor.x=attempted_x;
-			if(x > 0 && cursor.x > canvas_viewport.w+canvas_viewport.x) {
+			if(x > 0 && cursor.x >= canvas_viewport.w+canvas_viewport.x) {
 
 				++canvas_viewport.x;
 			}
@@ -114,6 +114,14 @@ void driver::step_move_and_draw(
 		if(attempted_y >= 0 && attempted_y < canvas.get_height()) {
 
 			cursor.y=attempted_y;
+			if(y > 0 && cursor.y >= canvas_viewport.h+canvas_viewport.y) {
+
+				++canvas_viewport.y;
+			}
+			else if(y < 0 && cursor.y < canvas_viewport.y) {
+
+				--canvas_viewport.y;
+			}
 		}
 	}
 
@@ -270,6 +278,6 @@ void driver::sync_canvas_display() {
 		//TODO: Add bg color too!!
 
 		auto cursor_contents=canvas.get(cursor.x, cursor.y).contents;
-		window.set(cursor.x, cursor.y, cursor_color, cursor_color, cursor_contents);
+		window.set(cursor.x-canvas_viewport.x, cursor.y-canvas_viewport.y, cursor_color, cursor_color, cursor_contents);
 	}
 }
