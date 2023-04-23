@@ -3,8 +3,11 @@
 #include "app/driver.h"
 #include <tools/arg_manager.h>
 #include <tools/terminal_out.h>
+#include <lm/log.h>
+#include <lm/file_logger.h>
 #include <thread>
 #include <iostream>
+#include <sstream>
 
 struct user_arg {
 
@@ -23,62 +26,75 @@ int main(
 	char ** argv
 ) {
 
-	user_arg ua=parse_args(argc, argv);
-	if(ua.show_help) {
+	lm::file_logger logger("log.log");
 
-		show_help();
-		return 0;
-	}
+	try {
 
-	if(ua.show_size) {
+		user_arg ua=parse_args(argc, argv);
+		if(ua.show_help) {
 
-		show_size();
-		return 0;
-	}
-
-	int drawer_w=10,
-		statusbar_h=1;
-
-	auto ts=tools::get_termsize();
-	video::window display(ts.w, ts.h);
-
-	//TODO: The terminal should scroll down...
-	input::input in;
-	auto now=std::chrono::system_clock::now();
-	auto then=now;
-	double draw_ms_elapsed{0.0};
-
-	app::driver driver(display, in, ua.canvas_w, ua.canvas_h, drawer_w, statusbar_h);
-	display.clear();
-
-	while(true) {
-
-		in.loop();
-		if(driver.is_exit()) {
-
-			break;
+			show_help();
+			return 0;
 		}
 
-		//run logic..
-		then=std::chrono::system_clock::now();
-		std::chrono::duration<double> diff=then-now;
-		now=then;
+		if(ua.show_size) {
 
-		double delta=diff.count();
-		driver.step(delta);
-
-		//draw
-		draw_ms_elapsed+=delta;
-		if(draw_ms_elapsed >= 0.1) {
-
-			//TODO: You sure about this???
-			driver.sync_display();
-			draw_ms_elapsed=0.0;
-			display.refresh(std::cout);
+			show_size();
+			return 0;
 		}
-	}
 
-	return 0;
+		int drawer_w=10,
+			statusbar_h=1;
+
+		auto ts=tools::get_termsize();
+		video::window display(ts.w, ts.h);
+
+		//TODO: The terminal should scroll down...
+		input::input in;
+		auto now=std::chrono::system_clock::now();
+		auto then=now;
+		double draw_ms_elapsed{0.0};
+
+		app::driver driver(display, in, ua.canvas_w, ua.canvas_h, drawer_w, statusbar_h);
+		display.clear();
+
+		while(true) {
+
+			in.loop();
+			if(driver.is_exit()) {
+
+				break;
+			}
+
+			//run logic..
+			then=std::chrono::system_clock::now();
+			std::chrono::duration<double> diff=then-now;
+			now=then;
+
+			double delta=diff.count();
+			driver.step(delta);
+
+			//draw
+			draw_ms_elapsed+=delta;
+			if(draw_ms_elapsed >= 0.1) {
+
+				//TODO: You sure about this???
+				driver.sync_display();
+				draw_ms_elapsed=0.0;
+				display.refresh(std::cout);
+			}
+		}
+
+		return 0;
+	}
+	catch(std::exception& e) {
+
+		std::stringstream ss;
+		ss<<"something failed: "<<e.what();
+		lm::log(logger).error()<<ss.str();
+		std::cerr<<ss.str()<<std::endl;
+		return 1;
+	}
 }
 
 user_arg parse_args(

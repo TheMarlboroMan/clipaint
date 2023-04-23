@@ -1,4 +1,6 @@
 #include "app/canvas.h"
+#include <stdexcept>
+#include <sstream>
 
 using namespace app;
 
@@ -64,7 +66,17 @@ const cell& canvas::get(
 ) const {
 
 	auto index=coordinates_to_index(_x, _y);
-	return cells.at(index);
+
+	try {
+
+		return cells.at(index);
+	}
+	catch(std::exception& e) {
+
+		std::stringstream ss;
+		ss<<"failed to get index "<<index<<" from canvas, corresponding to x="<<_x<<", y="<<_y<<"...";
+		throw std::runtime_error(ss.str());
+	}
 }
 
 std::size_t canvas::coordinates_to_index(

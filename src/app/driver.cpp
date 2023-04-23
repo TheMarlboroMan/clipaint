@@ -21,6 +21,9 @@ driver::driver(
 	statusbar_height(_statusbar_h)
 {
 	canvas_viewport.w=std::min(window.get_w()-drawer_width, canvas.get_width());
+//TODO: is this like this???
+	canvas_viewport.h=std::min(window.get_h()-statusbar_height, canvas.get_height());
+
 	statusbar_y=std::min(window.get_h()-statusbar_height, canvas.get_height());
 	build_message("welcome!");
 	sync_display();
