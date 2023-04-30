@@ -13,6 +13,6 @@ There are a couple of dependencies so far for this:
 
 ## TODO:
 
-- Shape selector (32 to 126).
 - Save / load.
-- Max screen size could be different from canvas, scroll.
+- Copy contents of cursor!!!
+- Maybe a scrollbar?

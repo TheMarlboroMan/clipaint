@@ -40,13 +40,20 @@ void driver::step(
 	double _delta
 ) {
 
+
 	switch(mode) {
 
 		case modes::move_and_draw:
 			step_move_and_draw(_delta);
 		break;
-		case modes::color_selection:
-			step_color_selection(_delta);
+		case modes::fg_color_selection:
+			step_fg_color_selection(_delta);
+		break;
+		case modes::bg_color_selection:
+			step_bg_color_selection(_delta);
+		break;
+		case modes::shape_selection:
+			step_shape_selection(_delta);
 		break;
 	}
 }
@@ -60,11 +67,22 @@ void driver::step_move_and_draw(
 	double _delta
 ) {
 
-	if(input.is_tab()) {
+	if(input.is_one()) {
 
-		build_message("color selection");
-		mode=modes::color_selection;
-		step_color_selection(_delta);
+		build_message("background color selection");
+		mode=modes::bg_color_selection;
+		return;
+	}
+	else if(input.is_two()) {
+
+		build_message("foreground color selection");
+		mode=modes::fg_color_selection;
+		return;
+	}
+	else if(input.is_three()) {
+
+		build_message("shape selection");
+		mode=modes::shape_selection;
 		return;
 	}
 
@@ -135,7 +153,7 @@ void driver::step_move_and_draw(
 	}
 }
 
-void driver::step_color_selection(
+void driver::step_shape_selection(
 	double /*_delta*/
 ) {
 
@@ -146,21 +164,63 @@ void driver::step_color_selection(
 		return;
 	}
 
-	if(input.is_up()) {
+	if(input.is_char()) {
 
-		cycle_color(bgcolor, -1);
+		shape=input.get_char();
+		build_message("normal");
+		mode=modes::move_and_draw;
+		return;
 	}
-	else if(input.is_down()) {
+	
+	if(input.is_left()) {
+	
+		cycle_shape(-1);
+	}
+	else if(input.is_right()) {
+	
+		cycle_shape(1);
+	}
+}
 
-		cycle_color(bgcolor, 1);
+void driver::step_fg_color_selection(
+	double /*_delta*/
+) {
+
+	if(input.is_escape()) {
+
+		build_message("normal");
+		mode=modes::move_and_draw;
+		return;
 	}
-	else if(input.is_left()) {
+
+	if(input.is_left()) {
 	
 		cycle_color(fgcolor, -1);
 	}
 	else if(input.is_right()) {
 	
 		cycle_color(fgcolor, 1);
+	}
+}
+
+void driver::step_bg_color_selection(
+	double /*_delta*/
+) {
+
+	if(input.is_escape()) {
+
+		build_message("normal");
+		mode=modes::move_and_draw;
+		return;
+	}
+
+	if(input.is_left()) {
+	
+		cycle_color(bgcolor, -1);
+	}
+	else if(input.is_right()) {
+	
+		cycle_color(bgcolor, 1);
 	}
 }
 
@@ -174,7 +234,7 @@ void driver::sync_display() {
 
 void driver::sync_cursor_position() {
 
-	const int	pos_y=6,
+	const int	pos_y=8,
 				pos_x=canvas_viewport.w+2;
 	const int	bg=colors::black,
 				fg=colors::white;
@@ -227,7 +287,8 @@ void driver::sync_drawer_display() {
 		window.set(canvas_viewport.w+x, bg_color_y, x, tick_color, type);
 	}
 
-	//TODO: Current shape.
+	const int current_shape_y=6;
+	window.set(canvas_viewport.w+2, current_shape_y, bgcolor, fgcolor, shape); 
 }
 
 void driver::sync_statusbar_display() {
@@ -242,6 +303,23 @@ void driver::sync_statusbar_display() {
 	}
 
 	window.set_text(1, statusbar_y, statusbar_bg, statusbar_fg, message);
+}
+
+void driver::cycle_shape(
+	int _direction
+) {
+
+	shape+=_direction;
+	if(shape < 32) {
+		
+		shape=126;
+		return;
+	}
+
+	if(shape > 126) {
+
+		shape=32;
+	}
 }
 
 void driver::cycle_color(

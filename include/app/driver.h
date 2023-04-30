@@ -20,14 +20,17 @@ class driver {
 
 	private:
 
-	enum class modes{move_and_draw, color_selection};
+	enum class modes{move_and_draw, bg_color_selection, fg_color_selection, shape_selection};
 	void					sync_canvas_display();
 	void					sync_drawer_display();
 	void					sync_statusbar_display();
 	void					sync_cursor_position();
 	void					cycle_color(int&, int);
+	void					cycle_shape(int);
 	void					step_move_and_draw(double);
-	void					step_color_selection(double);
+	void					step_fg_color_selection(double);
+	void					step_bg_color_selection(double);
+	void					step_shape_selection(double);
 	void					build_message(const std::string&);
 
 	app::canvas				canvas;

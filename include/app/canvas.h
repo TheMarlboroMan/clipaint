@@ -14,7 +14,7 @@ struct cell {
 
 	public:
 
-	uint8_t				fg{colors::black}, bg{colors::black};
+	uint8_t				bg{colors::black}, fg{colors::black};
 	char				contents{' '};
 };
 

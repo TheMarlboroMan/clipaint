@@ -3,7 +3,8 @@
 using namespace input;
 
 void input::input::loop() {
-
+	
+	curchar=0;
 	auto input_data=in.get();
 
 	control_flags=0;
@@ -27,9 +28,21 @@ void input::input::loop() {
 
 	if(input_data.type==input_data.types::chr) {
 
-		if(input_data.get_string_data()==" ") {
-		
-			control_flags|=cflags::space;
+		curchar=input_data.get_string_data()[0];
+
+		switch(curchar) {
+			case ' ':
+				control_flags|=cflags::space;
+			break;
+			case '1':
+				control_flags|=cflags::one;
+			break;
+			case '2':
+				control_flags|=cflags::two;
+			break;
+			case '3':
+				control_flags|=cflags::three;
+			break;
 		}
 	}
 
