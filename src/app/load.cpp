@@ -13,37 +13,64 @@ void app::load(
 ) {
 
 	//assume the file cursor is at the beginning of the stream.
-	char data{0};
+	auto get_u8=[&_file]() -> uint8_t {
 
-	_file.get(data);
-	uint8_t heading=static_cast<uint8_t>(data),
+		char data{0};
+		_file.get(data);
+		return static_cast<uint8_t>(data);
+	};
+
+	auto get_u16=[&_file]() -> uint16_t {
+
+		char buf[2]={0,0};
+		_file.get(buf[0]);
+		_file.get(buf[1]);
+		return * reinterpret_cast<uint16_t*>(buf);
+	};
+
+	uint8_t heading=get_u8(),
 			expected{240};
-	std::cout<<data<<" "<<heading<<" "<<(int)data<<" "<<(int)heading<<" "<<(int)expected<<std::endl;
 	
 	if(heading!=expected){
 
 		throw std::runtime_error("bad heading character");
 	}
 
-	char clip[4]={0,0,0,0};
-	_file.get(clip, 4);
+	//get will grab n-1 and add a null terminator, thus 5 bytes are needed.
+	char clip[5]={0,0,0,0,0};
+	_file.get(clip, 5);
 
 	if(clip[0]!='c' || clip[1]!='l' || clip[2]!='i' || clip[3]!='p') {
 
 		throw std::runtime_error("bad heading type");
 	}
 
-	_file.get(data);
-	uint8_t version{data};
-	std::cout<<"version is "<<version<<std::endl;
+	auto version=get_u8();
+	auto w=get_u16();
+	auto h=get_u16();
 
-	_file.get(data);
-	uint8_t w{data};
+	int canvas_w=static_cast<int>(w);
+	int canvas_h=static_cast<int>(h);
+	app::canvas newcanvas{canvas_w, canvas_h};
 
-	_file.get(data);
-	uint8_t h{data};
+	for(int y=0; y<canvas_h; y++) {
 
-	//TODO: set canvas size now!
-	//
-	//TODO: load, load load load load load load.
+		for(int x=0; x<canvas_w; x++) {
+
+			auto colors=get_u8();
+			char contents={0};
+			_file.get(contents);
+
+			//separate colors, the first 4 bits are foreground, the rest bg.
+			uint8_t fg{colors}, bg{colors};
+			bg&=0b00001111;
+
+			fg&=0b11110000;
+			fg>>=4;
+
+			newcanvas.set(x, y, bg, fg, contents);
+		}
+	}
+
+	_canvas=std::move(newcanvas);
 }

@@ -8,6 +8,7 @@
 #include <thread>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 struct user_arg {
 
@@ -15,6 +16,7 @@ struct user_arg {
 		show_size{false};
 	int canvas_w{30}, 
 		canvas_h{20};
+	std::string filename;
 };
 
 void	show_help();
@@ -56,8 +58,11 @@ int main(
 		double draw_ms_elapsed{0.0};
 
 		app::driver driver(display, in, ua.canvas_w, ua.canvas_h, drawer_w, statusbar_h);
-		driver.load("drawing");
-		return 0;
+		if(ua.filename.size()) {
+
+			driver.load(ua.filename);
+		}
+
 		display.clear();
 
 		while(true) {
@@ -132,6 +137,11 @@ user_arg parse_args(
 	if(checkarg("--height")) {
 
 		result.canvas_h=std::stoi(argman.get_following("--height"));
+	}
+
+	if(checkarg("--file")) {
+
+		result.filename=argman.get_following("--file");
 	}
 
 	return result;

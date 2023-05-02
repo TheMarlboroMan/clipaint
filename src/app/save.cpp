@@ -21,11 +21,11 @@ void app::save(
 	_stream.put(static_cast<char>(version));
 
 	//next width and height, same, two bytes
-	const uint8_t w=_canvas.get_width();
-	const uint8_t h=_canvas.get_height();
+	const uint16_t w=_canvas.get_width();
+	const uint16_t h=_canvas.get_height();
 
-	_stream.put(static_cast<char>(w));
-	_stream.put(static_cast<char>(h));
+	_stream.write(reinterpret_cast<const char*>(&w), sizeof(w));
+	_stream.write(reinterpret_cast<const char*>(&h), sizeof(h));
 
 	//cells are added top to bottom, left to right. Each cell has two bytes,
 	//one for bg/fg colors (4 bits each) and another for the contents,
