@@ -44,6 +44,8 @@ set(SOURCE
 	${SRCDIR}/app/driver.cpp
 	${SRCDIR}/app/canvas.cpp
 	${SRCDIR}/app/colors.cpp
+	${SRCDIR}/app/save.cpp
+	${SRCDIR}/app/load.cpp
 )
 
 add_executable(clipaint src/main.cpp ${SOURCE})

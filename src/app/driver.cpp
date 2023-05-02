@@ -1,7 +1,10 @@
 #include "app/driver.h"
 #include "app/colors.h"
+#include "app/save.h"
+#include "app/load.h"
 #include <stdexcept>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 
 using namespace app;
@@ -66,6 +69,13 @@ bool driver::is_exit() const {
 void driver::step_move_and_draw(
 	double _delta
 ) {
+
+	if(input.is_char() && input.get_char()=='s') {
+
+		save();
+		build_message("saving!");
+		return;
+	}
 
 	if(input.is_one()) {
 
@@ -361,4 +371,18 @@ void driver::sync_canvas_display() {
 		auto cursor_contents=canvas.get(cursor.x, cursor.y).contents;
 		window.set(cursor.x-canvas_viewport.x, cursor.y-canvas_viewport.y, cursor_color, cursor_color, cursor_contents);
 	}
+}
+
+void driver::save() {
+
+	std::ofstream file("drawing", std::ios::binary);
+	app::save(canvas, file);	
+}
+
+void driver::load(
+	const std::string& _filename
+) {
+
+	std::ifstream file("drawing", std::ios::binary);
+	app::load(canvas, file);
 }

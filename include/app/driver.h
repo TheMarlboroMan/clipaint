@@ -17,6 +17,7 @@ class driver {
 	void					step(double);
 	void					sync_display();
 	bool					is_exit() const;
+	void					load(const std::string&);
 
 	private:
 
@@ -32,6 +33,7 @@ class driver {
 	void					step_bg_color_selection(double);
 	void					step_shape_selection(double);
 	void					build_message(const std::string&);
+	void					save();
 
 	app::canvas				canvas;
 	video::window&			window;
