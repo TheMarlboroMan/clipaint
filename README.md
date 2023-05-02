@@ -1,8 +1,8 @@
 # cli paint
 
-## What is this
+## What is this?
 
-Little things to keep myself entertained.
+Little things to keep myself entertained, namely a small program to paint with your terminal.
 
 There are a couple of dependencies so far for this:
 
@@ -13,6 +13,6 @@ There are a couple of dependencies so far for this:
 
 ## TODO:
 
-- Choose filename when saving
-- Copy contents of cursor!!!
+- prompt for filename when saving
 - Maybe a scrollbar?
+- h for help.

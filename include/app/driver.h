@@ -34,6 +34,7 @@ class driver {
 	void					step_shape_selection(double);
 	void					build_message(const std::string&);
 	void					save();
+	void					yank();
 
 	app::canvas				canvas;
 	video::window&			window;

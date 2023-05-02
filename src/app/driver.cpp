@@ -70,11 +70,19 @@ void driver::step_move_and_draw(
 	double _delta
 ) {
 
-	if(input.is_char() && input.get_char()=='s') {
+	if(input.is_char()) {
 
-		save();
-		build_message("saving!");
-		return;
+		switch(input.get_char()) {
+
+			case 's':
+
+				save();
+				build_message("saving!");
+				return;
+			case 'y':
+				yank();
+				return;
+		}
 	}
 
 	if(input.is_one()) {
@@ -385,4 +393,13 @@ void driver::load(
 
 	std::ifstream file("drawing", std::ios::binary);
 	app::load(canvas, file);
+}
+
+void driver::yank() {
+
+	const auto& cell=canvas.get(cursor.x, cursor.y);
+	bgcolor=cell.bg;
+	fgcolor=cell.fg;
+	shape=cell.contents;
+	build_message("contents yanked");
 }
