@@ -24,6 +24,16 @@ void input::input::loop() {
 
 			control_flags|=cflags::tab;
 		}
+
+		if(input_data.control==input_data.controls::backspace) {
+
+			control_flags|=cflags::backspace;
+		}
+
+		if(input_data.control==input_data.controls::enter) {
+
+			control_flags|=cflags::enter;
+		}
 	}
 
 	if(input_data.type==input_data.types::chr) {
@@ -33,15 +43,6 @@ void input::input::loop() {
 		switch(curchar) {
 			case ' ':
 				control_flags|=cflags::space;
-			break;
-			case '1':
-				control_flags|=cflags::one;
-			break;
-			case '2':
-				control_flags|=cflags::two;
-			break;
-			case '3':
-				control_flags|=cflags::three;
 			break;
 		}
 	}

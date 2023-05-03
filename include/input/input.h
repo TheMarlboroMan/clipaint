@@ -15,9 +15,8 @@ class input {
 	bool					is_right() const {return control_flags & cflags::right;}
 	bool					is_space() const {return control_flags & cflags::space;}
 	bool					is_tab() const {return control_flags & cflags::tab;}
-	bool					is_one() const {return control_flags & cflags::one;}
-	bool					is_two() const {return control_flags & cflags::two;}
-	bool					is_three() const {return control_flags & cflags::three;}
+	bool					is_backspace() const {return control_flags & cflags::backspace;}
+	bool					is_enter() const {return control_flags & cflags::enter;}
 	bool 					is_char() const {return curchar;}
 	char					get_char() const {return curchar;}
 
@@ -31,9 +30,8 @@ class input {
 		right=16,
 		space=32,
 		tab=64,
-		one=128,
-		two=256,
-		three=512,
+		backspace=128,
+		enter=256
 	};
 
 	tools::terminal_in		in;

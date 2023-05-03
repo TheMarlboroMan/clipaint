@@ -13,6 +13,6 @@ There are a couple of dependencies so far for this:
 
 ## TODO:
 
-- prompt for filename when saving
 - Maybe a scrollbar?
 - h for help.
+- A "view drawing only" view

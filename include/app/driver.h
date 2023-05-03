@@ -21,7 +21,7 @@ class driver {
 
 	private:
 
-	enum class modes{move_and_draw, bg_color_selection, fg_color_selection, shape_selection};
+	enum class modes{move_and_draw, bg_color_selection, fg_color_selection, shape_selection, text_entry};
 	void					sync_canvas_display();
 	void					sync_drawer_display();
 	void					sync_statusbar_display();
@@ -32,9 +32,11 @@ class driver {
 	void					step_fg_color_selection(double);
 	void					step_bg_color_selection(double);
 	void					step_shape_selection(double);
+	void					step_text_entry(double);
 	void					build_message(const std::string&);
 	void					save();
 	void					yank();
+	void					build_filename_message();
 
 	app::canvas				canvas;
 	video::window&			window;
@@ -51,7 +53,8 @@ class driver {
 	int						drawer_width,
 							statusbar_height,
 							statusbar_y{0};
-	std::string				message;
+	std::string				message,
+	 						filename;
 	double					cursor_blink_timer{0.0};
 
 	const double			cursor_blink_cycle_len{0.6};

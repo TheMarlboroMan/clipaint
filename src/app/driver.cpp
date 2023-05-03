@@ -58,6 +58,9 @@ void driver::step(
 		case modes::shape_selection:
 			step_shape_selection(_delta);
 		break;
+		case modes::text_entry:
+			step_text_entry(_delta);
+		break;
 	}
 }
 
@@ -76,32 +79,29 @@ void driver::step_move_and_draw(
 
 			case 's':
 
-				save();
-				build_message("saving!");
+				mode=modes::text_entry;
+				build_filename_message();
 				return;
 			case 'y':
+
 				yank();
 				return;
+			case '1':
+
+				build_message("background color selection");
+				mode=modes::bg_color_selection;
+				return;
+			case '2':
+
+				build_message("foreground color selection");
+				mode=modes::fg_color_selection;
+				return;
+			case '3':
+
+				build_message("shape selection");
+				mode=modes::shape_selection;
+				return;
 		}
-	}
-
-	if(input.is_one()) {
-
-		build_message("background color selection");
-		mode=modes::bg_color_selection;
-		return;
-	}
-	else if(input.is_two()) {
-
-		build_message("foreground color selection");
-		mode=modes::fg_color_selection;
-		return;
-	}
-	else if(input.is_three()) {
-
-		build_message("shape selection");
-		mode=modes::shape_selection;
-		return;
 	}
 
 	cursor_blink_timer+=_delta;
@@ -168,6 +168,41 @@ void driver::step_move_and_draw(
 	if(input.is_space()) {
 
 		canvas.set(cursor.x, cursor.y, bgcolor, fgcolor, shape);
+	}
+}
+
+void driver::step_text_entry(
+	double /*_delta*/
+) {
+
+	if(input.is_escape()) {
+
+		build_message("normal");
+		mode=modes::move_and_draw;
+		return;
+	}
+
+	if(input.is_enter()) {
+
+		save();
+		build_message("file saved!");
+		mode=modes::move_and_draw;
+		return;
+	}
+
+	if(input.is_backspace() && filename.size()) {
+
+		filename.pop_back();
+		build_filename_message();
+		return;
+	}
+
+	if(input.is_char()) {
+
+		//TODO: This will fail in utf8 chars, but its easily fixable!
+		filename.push_back(input.get_char());
+		build_filename_message();
+		return;		
 	}
 }
 
@@ -265,17 +300,10 @@ void driver::sync_cursor_position() {
 
 	ss.str("");
 	ss<<std::setfill('0')
-		<<std::setw(3)<<canvas_viewport.x<<","
-		<<std::setw(3)<<canvas_viewport.y;
-
-	window.set_text(pos_x, pos_y+2, bg, fg, ss.str());
-
-	ss.str("");
-	ss<<std::setfill('0')
 		<<std::setw(3)<<canvas.get_width()<<","
 		<<std::setw(3)<<canvas.get_height();
 
-	window.set_text(pos_x, pos_y+4, bg, fg, ss.str());
+	window.set_text(pos_x, pos_y+2, bg, fg, ss.str());
 }
 
 void driver::sync_drawer_display() {
@@ -383,7 +411,8 @@ void driver::sync_canvas_display() {
 
 void driver::save() {
 
-	std::ofstream file("drawing", std::ios::binary);
+	std::ofstream file(filename, std::ios::binary);
+	//TODO: what if this fails???
 	app::save(canvas, file);	
 }
 
@@ -391,7 +420,7 @@ void driver::load(
 	const std::string& _filename
 ) {
 
-	std::ifstream file("drawing", std::ios::binary);
+	std::ifstream file(_filename, std::ios::binary);
 	app::load(canvas, file);
 }
 
@@ -402,4 +431,11 @@ void driver::yank() {
 	fgcolor=cell.fg;
 	shape=cell.contents;
 	build_message("contents yanked");
+}
+
+void driver::build_filename_message() {
+
+	std::stringstream ss;
+	ss<<"enter filename: "<<filename;
+	build_message(ss.str());
 }
